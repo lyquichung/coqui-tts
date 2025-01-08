@@ -12,6 +12,7 @@ from spacy.lang.es import Spanish
 from spacy.lang.hi import Hindi
 from spacy.lang.ja import Japanese
 from spacy.lang.zh import Chinese
+from spacy.lang.vi import Vietnamese
 from tokenizers import Tokenizer
 
 from TTS.tts.layers.xtts.zh_num2words import TextNorm as zh_num2words
@@ -32,6 +33,8 @@ def get_spacy_lang(lang):
         return Spanish()
     elif lang == "hi":
         return Hindi()
+    elif lang == "vi":
+        return Vietnamese()
     else:
         # For most languages, English does the job
         return English()
@@ -236,6 +239,23 @@ _abbreviations = {
         (re.compile("\\b%s\\." % x[0], re.IGNORECASE), x[1])
         for x in [
             # Hindi doesn't typically use abbreviations in the same way as Latin-based scripts.
+        ]
+    ],
+    "vi": [
+        (re.compile(r"\\b%s\\." % x[0], re.IGNORECASE), x[1])
+        for x in [
+            ("Ông", "Ông"),                # Ông.
+            ("Bà", "Bà"),                  # Bà.
+            ("Anh", "Anh"),                # Anh.
+            ("Chị", "Chị"),                # Chị.
+            ("TS", "Tiến sĩ"),             # Tiến sĩ.
+            ("PGS", "Phó giáo sư"),        # Phó giáo sư.
+            ("GS", "Giáo sư"),             # Giáo sư.
+            ("ThS", "Thạc sĩ"),            # Thạc sĩ.
+            ("CN", "Cử nhân"),             # Cử nhân.
+            ("KS", "Kỹ sư"),               # Kỹ sư.
+            ("BS", "Bác sĩ"),              # Bác sĩ.
+            ("LS", "Luật sư"),             # Luật sư.
         ]
     ],
 }
@@ -446,6 +466,18 @@ _symbols_multilingual = {
             ("°", " डिग्री "),
         ]
     ],
+    "vi": [
+        (re.compile(r"%s" % re.escape(x[0]), re.IGNORECASE), x[1])
+        for x in [
+            ("&", " và "),
+            ("@", " a còng "),
+            ("%", " phần trăm "),
+            ("#", " thăng "),
+            ("$", " đô la "),
+            ("£", " bảng anh "),
+            ("°", " độ "),
+        ]
+    ],
 }
 
 
@@ -472,6 +504,7 @@ _ordinal_re = {
     "hu": re.compile(r"([0-9]+)(\.|adik|edik|odik|edik|ödik|ödike|ik)"),
     "ko": re.compile(r"([0-9]+)(번째|번|차|째)"),
     "hi": re.compile(r"([0-9]+)(st|nd|rd|th)"),  # To check
+    "vi": re.compile(r"(thứ\s*[0-9]+|[0-9]+\.(?=\s|$))"),
 }
 _number_re = re.compile(r"[0-9]+")
 _currency_re = {
@@ -524,6 +557,7 @@ def _expand_currency(m, lang="en", currency="USD"):
         "hu": ", ",
         "ko": ", ",
         "hi": ", ",
+        "vi": ", ",
     }
 
     if amount.is_integer():
@@ -629,6 +663,7 @@ class VoiceBpeTokenizer:
             "hu": 224,
             "ko": 95,
             "hi": 150,
+            "vi": 300,
         }
 
     @cached_property
@@ -648,7 +683,7 @@ class VoiceBpeTokenizer:
             )
 
     def preprocess_text(self, txt, lang):
-        if lang in {"ar", "cs", "de", "en", "es", "fr", "hi", "hu", "it", "nl", "pl", "pt", "ru", "tr", "zh", "ko"}:
+        if lang in {"ar", "cs", "de", "en", "es", "fr", "hi", "hu", "it", "nl", "pl", "pt", "ru", "tr", "zh", "ko", "vi"}:
             txt = multilingual_cleaners(txt, lang)
             if lang == "zh":
                 txt = chinese_transliterate(txt)
