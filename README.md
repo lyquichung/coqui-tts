@@ -128,7 +128,7 @@ If you plan to code or train models, clone 🐸TTS and install it locally.
 
 ```bash
 git clone https://github.com/lyquichung/coqui-tts
-cd coqui-ai-TTS
+cd coqui-tts
 pip install -e .
 ```
 
