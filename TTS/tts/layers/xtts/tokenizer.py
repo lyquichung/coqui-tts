@@ -244,10 +244,6 @@ _abbreviations = {
     "vi": [
         (re.compile(r"\\b%s\\." % x[0], re.IGNORECASE), x[1])
         for x in [
-            ("Ông", "Ông"),                # Ông.
-            ("Bà", "Bà"),                  # Bà.
-            ("Anh", "Anh"),                # Anh.
-            ("Chị", "Chị"),                # Chị.
             ("TS", "Tiến sĩ"),             # Tiến sĩ.
             ("PGS", "Phó giáo sư"),        # Phó giáo sư.
             ("GS", "Giáo sư"),             # Giáo sư.
@@ -504,7 +500,6 @@ _ordinal_re = {
     "hu": re.compile(r"([0-9]+)(\.|adik|edik|odik|edik|ödik|ödike|ik)"),
     "ko": re.compile(r"([0-9]+)(번째|번|차|째)"),
     "hi": re.compile(r"([0-9]+)(st|nd|rd|th)"),  # To check
-    "vi": re.compile(r"(thứ\s*[0-9]+|[0-9]+\.(?=\s|$))"),
 }
 _number_re = re.compile(r"[0-9]+")
 _currency_re = {
@@ -592,7 +587,11 @@ def expand_numbers_multilingual(text, lang="en"):
             pass
         if lang != "tr":
             text = re.sub(_decimal_number_re, lambda m: _expand_decimal_point(m, lang), text)
-        text = re.sub(_ordinal_re[lang], lambda m: _expand_ordinal(m, lang), text)
+        try:
+            _ordinal_re[lang]
+            text = re.sub(_ordinal_re[lang], lambda m: _expand_ordinal(m, lang), text)
+        except:
+            pass
         text = re.sub(_number_re, lambda m: _expand_number(m, lang), text)
     return text
 
@@ -663,7 +662,7 @@ class VoiceBpeTokenizer:
             "hu": 224,
             "ko": 95,
             "hi": 150,
-            "vi": 300,
+            "vi": 500,
         }
 
     @cached_property
